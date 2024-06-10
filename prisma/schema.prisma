@@ -1,0 +1,81 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int   @id @default(autoincrement())
+  firstName         String
+  lastName          String
+  email             String   @unique
+  phone             String   @unique
+  password          String   
+  profile_image     String?
+  address_id        String
+  isAdmin           Boolean
+
+  posts  Post[]
+  adresses  Address[]
+  orders    Order[]
+}
+
+model Post {
+  id                Int   @id @default(autoincrement())
+  item_image        String
+  family_name       String
+  name              String
+  diameter          String
+  hight             String
+  price             String
+  postByUser_id     Int
+  describtion       String
+  create_time       DateTime  @default(now()) @db.Timestamp(0)
+  update_time       DateTime? @updatedAt @db.Timestamp(0)
+  soldOut_status    Boolean
+
+  order_items Order_item[]
+  users    User      @relation(fields: [postByUser_id], references: [id])
+}
+
+model Address {
+  id                Int   @id @default(autoincrement())
+  address           String
+  postId            String
+  
+  user_id           Int   
+  users    User      @relation(fields: [user_id], references: [id])
+}
+
+model Sold_out {
+  id                Int   @id @default(autoincrement())
+  order_id          Int
+  soldOut_time      DateTime @db.Timestamp()
+
+  order   Order    @relation(fields: [order_id], references: [id])
+}
+
+model Order_item {
+  id                Int   @id @default(autoincrement())
+  discount          Decimal
+  order_id          Int
+  post_id           Int
+
+  order    Order   @relation(fields: [order_id], references: [id])
+  post    Post     @relation(fields: [post_id], references: [id])
+}
+
+model Order {
+  id                Int   @id @default(autoincrement())
+  order_date        DateTime    @db.Timestamp()
+  admin_id          Int       
+
+  sold_outs    Sold_out[]
+  order_items  Order_item[]
+  user    User @relation(fields: [admin_id], references: [id])
+}
