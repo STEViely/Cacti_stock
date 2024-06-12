@@ -13,12 +13,12 @@ model User {
   id                Int   @id @default(autoincrement())
   firstName         String
   lastName          String
-  email             String   @unique
-  phone             String   @unique
+  email             String?   @unique
+  mobile             String?   @unique
   password          String   
   profile_image     String?
-  address_id        String
-  isAdmin           Boolean
+  address_id        String?
+  isAdmin           Boolean?   @default(false)
 
   posts  Post[]
   adresses  Address[]

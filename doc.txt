@@ -1,0 +1,22 @@
+--- REGISTER ---
+POST /auth/register
+BODY
+    firstName
+    lastName
+    emailOrMobile
+    password
+    confirmPassword
+RESPONE
+    200 message
+    400 message
+    500 message
+
+--- LOGIN ---
+POST/auth/login 
+BODY
+    emailOrMobile
+    password
+RESPONE
+    200 accessToken
+    400 message
+    500 message
