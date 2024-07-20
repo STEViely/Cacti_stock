@@ -1,3 +1,4 @@
+const createError = require("../utils/create-error");
 const { registerSchema, loginSchema } = require("../validator/auth-validator");
 
 exports.registerValidator = (req, res, next) => {
@@ -15,5 +16,12 @@ exports.loginValidator = (req, res, next) => {
     return res.status(400).json({ message: error.details[0].message });
   }
   req.input = value;
+  next();
+};
+
+exports.validateUpdateProfile = (req, res, next) => {
+  if (!req.files) {
+    createError({ message: "at least one of Profile Image", statusCode: 400 });
+  }
   next();
 };

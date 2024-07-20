@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,73 +7,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                Int   @id @default(autoincrement())
-  firstName         String
-  lastName          String
-  email             String?   @unique
-  mobile             String?   @unique
-  password          String   
-  profile_image     String?
-  address_id        String?
-  isAdmin           Boolean?   @default(false)
+model address {
+  id         Int    @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  mobilePhone String
+  address    String
+  postId     String
+  user_id    Int
+  user       user   @relation(fields: [user_id], references: [id])
 
-  posts  Post[]
-  adresses  Address[]
-  orders    Order[]
+  @@index([user_id])
 }
 
-model Post {
-  id                Int   @id @default(autoincrement())
-  item_image        String
-  family_name       String
-  name              String
-  diameter          String
-  hight             String
-  price             String
-  postByUser_id     Int
-  describtion       String
-  create_time       DateTime  @default(now()) @db.Timestamp(0)
-  update_time       DateTime? @updatedAt @db.Timestamp(0)
-  soldOut_status    Boolean
+model cart {
+  id      Int   @id @default(autoincrement())
+  post_id Int?
+  user_id Int?
+  post    post? @relation(fields: [post_id], references: [id])
+  user    user? @relation(fields: [user_id], references: [id])
 
-  order_items Order_item[]
-  users    User      @relation(fields: [postByUser_id], references: [id])
+  @@index([post_id])
+  @@index([user_id])
 }
 
-model Address {
-  id                Int   @id @default(autoincrement())
-  address           String
-  postId            String
-  
-  user_id           Int   
-  users    User      @relation(fields: [user_id], references: [id])
+model order {
+  id            Int         @id @default(autoincrement())
+  order_date    DateTime    @db.Timestamp(0)
+  user_id       Int  
+  payment_slip  String
+  totalPrice    String
+  user          user        @relation(fields: [user_id], references: [id])
+  orderitem     orderitem[]
+  soldout       soldout[]
+
+  @@index([user_id])
 }
 
-model Sold_out {
-  id                Int   @id @default(autoincrement())
-  order_id          Int
-  soldOut_time      DateTime @db.Timestamp()
+model orderitem {
+  id       Int     @id @default(autoincrement())
+  discount Decimal
+  order_id Int
+  post_id  Int
+  order    order   @relation(fields: [order_id], references: [id])
+  post     post    @relation(fields: [post_id], references: [id])
 
-  order   Order    @relation(fields: [order_id], references: [id])
+  @@index([order_id])
+  @@index([post_id])
 }
 
-model Order_item {
-  id                Int   @id @default(autoincrement())
-  discount          Decimal
-  order_id          Int
-  post_id           Int
+model post {
+  id             Int         @id @default(autoincrement())
+  idcactus       String      @unique
+  front_side     String
+  A_side         String
+  B_side         String
+  C_side         String
+  family_name    String
+  name           String
+  diameter       String
+  price          String
+  height         String?
+  born           String
+  postByUser_id  Int
+  create_time    DateTime?   @default(now()) @db.Timestamp(0)
+  update_time    DateTime?   @db.Timestamp(0)
+  soldOut_status Boolean?
+  describtion    String?
+  cart           cart[]
+  orderitem      orderitem[]
+  user           user        @relation(fields: [postByUser_id], references: [id])
 
-  order    Order   @relation(fields: [order_id], references: [id])
-  post    Post     @relation(fields: [post_id], references: [id])
+  @@index([postByUser_id])
 }
 
-model Order {
-  id                Int   @id @default(autoincrement())
-  order_date        DateTime    @db.Timestamp()
-  admin_id          Int       
+model soldout {
+  id           Int      @id @default(autoincrement())
+  order_id     Int
+  soldOut_time DateTime @db.Timestamp(0)
+  order        order    @relation(fields: [order_id], references: [id])
 
-  sold_outs    Sold_out[]
-  order_items  Order_item[]
-  user    User @relation(fields: [admin_id], references: [id])
+  @@index([order_id])
+}
+
+model user {
+  id            Int       @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  email         String?   @unique
+  mobile        String?   @unique
+  password      String
+  profile_image String?
+  isAdmin       Boolean?  @default(false)
+  address       address[]
+  cart          cart[]
+  order         order[]
+  post          post[]
 }
